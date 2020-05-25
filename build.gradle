@@ -1,0 +1,164 @@
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
+    }
+}
+        
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
+
+version = '1.0'
+group = 'hickorysb.forgediscordbridge' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'forgediscordbridge'
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+
+minecraft {
+    // The mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   Snapshot are built nightly.
+    // stable_#            Stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // Simply re-run your setup task after changing the mappings to update your workspace.
+    //mappings channel: 'snapshot', version: '20171003-1.12'
+    mappings channel: 'snapshot', version: '20171003-1.12'
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+    
+    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+    // Default run configurations.
+    // These can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+
+        server {
+
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+        }
+    }
+}
+
+dependencies {
+    // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+    // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+    // The userdev artifact is a special name and will get all sorts of transformations applied to it.
+    minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
+    implementation("com.discord4j:discord4j-core:3.1.0.RC1")
+
+    // You may put jars on which you depend on in ./libs or you may define them like so..
+    // compile "some.group:artifact:version:classifier"
+    // compile "some.group:artifact:version"
+
+    // Real examples
+    // compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+    // compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+    // The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+    // provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // These dependencies get remapped to your current MCP mappings
+    // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+    // For more info...
+    // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+    // http://www.gradle.org/docs/current/userguide/dependency_management.html
+
+}
+
+shadowJar {
+    relocate 'com.fasterxml.jackson', 'hickorysb.forgediscordbridge.repack.com.fasterxml.jackson'
+    relocate 'com.fasterxml.jackson', 'hickorysb.forgediscordbridge.repack.com.fasterxml.jackson'
+    //relocate 'net', 'hickorysb.forgediscordbridge.repack.net'
+    //relocate 'org', 'hickorysb.forgediscordbridge.repack.org'
+    relocate 'io.netty', 'hickorysb.forgediscordbridge.repack.io.netty'
+    //relocate 'it', 'hickorysb.forgediscordbridge.repack.it'
+    //relocate 'discord4j', 'hickorysb.forgediscordbridge.repack.discord4j'
+    //relocate 'reactor', 'hickorysb.forgediscordbridge.repack.reactor'
+    /*minimize {
+        exclude 'module-info'
+    }*/
+
+    dependencies {
+        include(dependency("com.google.code.gson:gson:2.8.0"))
+        include(dependency("com.discord4j:discord4j-core:3.1.0.RC1"))
+        include(dependency("com.discord4j:discord-json:1.3.1"))
+        include(dependency("com.discord4j:discord-json-api:1.3.1"))
+        include(dependency("com.discord4j:discord4j-gateway:3.1.0.RC1"))
+        include(dependency("com.discord4j:discord4j-rest:3.1.0.RC1"))
+        include(dependency("com.discord4j:discord4j-common:3.1.0.RC1"))
+        include(dependency("com.discord4j:simple-fsm:1.0.1"))
+        include(dependency("com.discord4j:stores-jdk:3.1.0"))
+        include(dependency("com.discord4j:stores-api:3.1.0"))
+        include(dependency("com.fasterxml.jackson.core:jackson-databind:2.11.0"))
+        include(dependency("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.11.0"))
+        include(dependency("com.fasterxml.jackson.core:jackson-core:2.11.0"))
+        include(dependency("com.fasterxml.jackson.core:jackson-annotations:2.11.0"))
+        include(dependency("io.projectreactor.addons:reactor-extra:3.3.3.RELEASE"))
+        include(dependency("io.projectreactor.netty:reactor-netty:0.9.7.RELEASE"))
+        include(dependency("io.projectreactor:reactor-core:3.3.5.RELEASE"))
+        include(dependency("io.netty:netty-codec-http2:4.1.49.Final"))
+        include(dependency("io.netty:netty-codec-http:4.1.49.Final"))
+        include(dependency("io.netty:netty-handler-proxy:4.1.49.Final"))
+        include(dependency("io.netty:netty-handler:4.1.49.Final"))
+        include(dependency("io.netty:netty-transport-native-epoll:4.1.49.Final"))
+        include(dependency("io.netty:netty-all:4.1.49.Final"))
+        include(dependency("org.reactivestreams:reactive-streams:1.0.3"))
+        include(dependency("io.netty:netty-buffer:4.1.49.Final"))
+        include(dependency("io.netty:netty-common:4.1.49.Final"))
+        include(dependency("io.netty:netty-transport-native-unix-common:4.1.49.Final"))
+        include(dependency("io.netty:netty-transport:4.1.49.Final"))
+        include(dependency("io.netty:netty-resolver:4.1.49.Final"))
+        include(dependency("io.netty:netty-codec:4.1.49.Final"))
+        include(dependency("io.netty:netty-codec-socks:4.1.49.Final"))
+        include(dependency("com.austinv11.servicer:Servicer:1.0.0"))
+        include(dependency("com.discord4j:discord4j-voice:3.1.0.RC1"))
+    }
+}
+
+// Example for how to get properties into the manifest for reading by the runtime..
+jar {
+    manifest {
+        attributes([
+            "Specification-Title": "examplemod",
+            "Specification-Vendor": "examplemodsareus",
+            "Specification-Version": "1", // We are version 1 of ourselves
+            "Implementation-Title": project.name,
+            "Implementation-Version": "${version}",
+            "Implementation-Vendor" :"examplemodsareus",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+}
+
+reobf {
+    shadowJar{}
+}
+
+// Example configuration to allow publishing using the maven-publish task
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+shadowJar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+//publish.dependsOn('reobfJar')
+tasks.build.dependsOn(tasks.shadowJar)
+tasks.build.dependsOn reobfShadowJar

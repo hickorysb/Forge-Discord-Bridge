@@ -10,7 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class LoadJSONConfigs {
+public class Configuration {
     public static MainWrapper mainConfig;
     public static CommandsWrapper commandsConfig;
     public static GroupsWrapper groupsConfig;
@@ -19,7 +19,7 @@ public class LoadJSONConfigs {
     public static File commands;
 
     public static void load(String configPath) {
-        File configDirectory = new File(configPath);
+        File configDirectory = new File(configPath + File.separator + "FDB");
 
         configDirectory.mkdirs();
 

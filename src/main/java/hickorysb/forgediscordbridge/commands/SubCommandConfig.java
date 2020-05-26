@@ -2,7 +2,7 @@ package hickorysb.forgediscordbridge.commands;
 
 import hickorysb.forgediscordbridge.DiscordThread;
 import hickorysb.forgediscordbridge.ForgeDiscordBridge;
-import hickorysb.forgediscordbridge.config.LoadJSONConfigs;
+import hickorysb.forgediscordbridge.config.Configuration;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -36,11 +36,11 @@ public class SubCommandConfig extends CommandBase {
         switch (arg) {
             case "load":
             case "reload":
-                String oldToken = LoadJSONConfigs.mainConfig.bot_token;
+                String oldToken = Configuration.mainConfig.bot_token;
 
-                LoadJSONConfigs.loadGroupsConfig();
-                LoadJSONConfigs.loadCommandsConfig();
-                LoadJSONConfigs.loadMainConfig();
+                Configuration.loadGroupsConfig();
+                Configuration.loadCommandsConfig();
+                Configuration.loadMainConfig();
                 sender.sendMessage(new TextComponentString("Config reloaded"));
 
                 if (DiscordThread.client != null) {
@@ -49,7 +49,7 @@ public class SubCommandConfig extends CommandBase {
                     ForgeDiscordBridge.thread = new Thread(run);
                     ForgeDiscordBridge.thread.start();
                     sender.sendMessage(new TextComponentString("Connected Bot"));
-                } else if (!oldToken.equals(LoadJSONConfigs.mainConfig.bot_token)) {
+                } else if (!oldToken.equals(Configuration.mainConfig.bot_token)) {
                     DiscordThread.end();
                     Runnable run = new DiscordThread();
                     ForgeDiscordBridge.thread = new Thread(run);
@@ -59,9 +59,9 @@ public class SubCommandConfig extends CommandBase {
 
                 break;
             case "save":
-                LoadJSONConfigs.saveCommandsConfig();
-                LoadJSONConfigs.saveGroupsConfig();
-                LoadJSONConfigs.saveMainConfig();
+                Configuration.saveCommandsConfig();
+                Configuration.saveGroupsConfig();
+                Configuration.saveMainConfig();
 
                 sender.sendMessage(new TextComponentString("Config saved"));
                 break;

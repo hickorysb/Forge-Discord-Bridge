@@ -13,6 +13,10 @@ public class MainWrapper {
     public boolean enable_commands;
     @Since(1.0)
     public boolean enable_groups;
+    @Since(1.0)
+    public boolean bridge_bots;
+    @Since(1.0)
+    public String command_prefix;
 
     public void fillFields() {
         if(this.bot_token == null) {
@@ -20,6 +24,9 @@ public class MainWrapper {
         }
         if(this.channelIDs == null) {
             this.channelIDs = new ArrayList<>();
+        }
+        if(this.command_prefix == null) {
+            this.command_prefix = "/";
         }
     }
 }

@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import hickorysb.forgediscordbridge.config.Configuration;
+import hickorysb.forgediscordbridge.MinecraftDiscordBridge;
 
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -55,6 +56,7 @@ public class ForgeDiscordBridge
             Runnable runnable = new DiscordThread();
             thread = new Thread(runnable);
             thread.start();
+            MinecraftForge.EVENT_BUS.register(MinecraftDiscordBridge.instance);
         }
     }
 

@@ -27,12 +27,23 @@ import java.util.Objects;
 
 public class MinecraftDiscordBridge {
     private MessageChannel currentChannel;
+    private ArrayList<GuildMessageChannel> channels;
     private ArrayList<String> channelids;
-    private String buffer;
+    private ArrayList<Member> members;
+    //private String buffer;
     public static MinecraftDiscordBridge instance = new MinecraftDiscordBridge();
 
-    public MinecraftDiscordBridge(){
+
+    public void update(){
         channelids = Configuration.mainConfig.channelIDs;
+        channels = new ArrayList<GuildMessageChannel>();
+        for(String x : channelids){
+            channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
+        }
+    }
+
+    public MinecraftDiscordBridge(){
+        update();
     }
 
     @SubscribeEvent
@@ -41,76 +52,50 @@ public class MinecraftDiscordBridge {
 
         String finalMessage = event.getMessage();
 
-
-
-        for(String x : channelids){
-            try {
-
-                ArrayList<Member> members = new ArrayList<Member>(Objects.requireNonNull(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block().getMembers().collectList().block()));
-
-                if(finalMessage.contains("@")){
-                    System.out.println("Found it");
+        try{
+            for(GuildMessageChannel x : channels){
+                members = new ArrayList<Member>(x.getMembers().collectList().block());
+                while(finalMessage.contains("@")){
                     for(Member mem : members){
-                        if(finalMessage.contains(new String("@" + mem.getDisplayName()))) {
-                            System.out.println("Username: " + mem.getDisplayName() + "\nMemNick: " + mem.getNicknameMention());
-                            finalMessage = finalMessage.replace(new String("@" + mem.getDisplayName()), mem.getNicknameMention());
+                        String displayName = mem.getDisplayName();
+                        if(finalMessage.contains(new String("@" + displayName))){
+                            finalMessage = finalMessage.replace(new String("@" + displayName), mem.getNicknameMention());
                         }
                     }
                 }
-
-                currentChannel = DiscordThread.client.getChannelById(Snowflake.of(x)).cast(MessageChannel.class).block();
-                buffer = "**[" + event.getPlayer().getName() + "]** " + finalMessage;
-                currentChannel.createMessage(buffer).block();
-                buffer = "";
-            }catch(Exception e){
-                ForgeDiscordBridge.logger.error("Error with bot\n");
-                ForgeDiscordBridge.logger.error("Error message(s): \n" + e.getMessage());
+                x.createMessage("**[" + event.getPlayer().getName() + "]**" + finalMessage).block();
             }
-
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
         }
-
-
     }
 
     @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.isCanceled() || event.player == null) return;
-        //System.out.println("User joined");
-        Configuration.loadMainConfig();
 
-        for(String x : channelids) {
-            System.out.println("Printing to channel: " + x + "\n");
-            Snowflake flake = Snowflake.of(x);
-            try {
-                currentChannel = DiscordThread.client.getChannelById(flake).cast(MessageChannel.class).block();
-                buffer = "**" + event.player.getName() + "** just joined the server!";
-                currentChannel.createMessage(buffer).block();
-                buffer = "";
-            } catch (Exception e) {
-                ForgeDiscordBridge.logger.error("Error with bot\n");
-                ForgeDiscordBridge.logger.error("Error message(s): \n" + e.getMessage());
+        try{
+
+            for(GuildMessageChannel x : channels){
+                x.createMessage("**" + event.player.getName() + "** just joined the server!").block();
             }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
         }
+
 
     }
 
     @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.isCanceled() || event.player == null) return;
-        //System.out.println("User left");
-        Configuration.loadMainConfig();
 
-        for(String x : channelids) {
-            Snowflake flake = Snowflake.of(x);
-            try {
-                currentChannel = DiscordThread.client.getChannelById(flake).cast(MessageChannel.class).block();
-                buffer = "**" + event.player.getName() + "** just left the server!";
-                currentChannel.createMessage(buffer).block();
-                buffer = "";
-            } catch (Exception e) {
-                ForgeDiscordBridge.logger.error("Error with bot\n");
-                ForgeDiscordBridge.logger.error("Error message(s): \n" + e.getMessage());
+        try{
+            for(GuildMessageChannel x : channels){
+                x.createMessage("**" + event.player.getName() + "** just left the server!").block();
             }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
         }
 
 

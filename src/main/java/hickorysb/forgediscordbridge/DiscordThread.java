@@ -12,6 +12,7 @@ import discord4j.gateway.intent.IntentSet;
 import hickorysb.forgediscordbridge.config.CommandConfig;
 import hickorysb.forgediscordbridge.config.Configuration;
 import hickorysb.forgediscordbridge.config.GroupConfig;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import reactor.core.publisher.Flux;
@@ -28,6 +29,7 @@ public class DiscordThread implements Runnable {
                 client = DiscordClient.create(Configuration.mainConfig.bot_token).gateway().setEnabledIntents(IntentSet.of(Intent.GUILD_MESSAGES, Intent.GUILD_MEMBERS)).login().block();
                 assert client != null : "Client came out null.";
                 ForgeDiscordBridge.logger.info("Logged in as " + Objects.requireNonNull(client.getSelf().block()).getUsername() + ".");
+                ForgeDiscordBridge.mdBridge.update();
                 client.on(MessageCreateEvent.class).subscribe(event -> {
                     final Message message = event.getMessage();
                     final Member member = message.getAuthorAsMember().block();

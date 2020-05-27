@@ -23,6 +23,7 @@ public class ForgeDiscordBridge
     public static final String VERSION = "1.0.00";
     public static Logger logger;
     public static Thread thread;
+    public static MinecraftDiscordBridge mdBridge;
 
     private static Boolean hasInitializedDiscord = false;
 
@@ -56,7 +57,8 @@ public class ForgeDiscordBridge
             Runnable runnable = new DiscordThread();
             thread = new Thread(runnable);
             thread.start();
-            MinecraftForge.EVENT_BUS.register(MinecraftDiscordBridge.instance);
+            mdBridge = new MinecraftDiscordBridge();
+            MinecraftForge.EVENT_BUS.register(mdBridge);
         }
     }
 

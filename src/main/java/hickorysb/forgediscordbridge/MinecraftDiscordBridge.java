@@ -23,6 +23,7 @@ import sun.security.krb5.Config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 
 public class MinecraftDiscordBridge {
@@ -31,22 +32,27 @@ public class MinecraftDiscordBridge {
     private ArrayList<String> channelids;
     private ArrayList<Member> members;
     //private String buffer;
-    public static MinecraftDiscordBridge instance = new MinecraftDiscordBridge();
+    //public static MinecraftDiscordBridge instance;
 
 
     public void update(){
         channelids = Configuration.mainConfig.channelIDs;
         channels = new ArrayList<GuildMessageChannel>();
-        for(String x : channelids){
-            channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
+        try{
+            for(String x : channelids){
+                channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Bot Error");
         }
     }
 
     public MinecraftDiscordBridge(){
-        update();
+        channelids = Configuration.mainConfig.channelIDs;
+        //update();
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
 
@@ -54,11 +60,17 @@ public class MinecraftDiscordBridge {
 
         try{
             for(GuildMessageChannel x : channels){
-                members = new ArrayList<Member>(x.getMembers().collectList().block());
-                while(finalMessage.contains("@")){
+                members = new ArrayList<Member>(Objects.requireNonNull(x.getMembers().collectList().block()));
+                if(finalMessage.contains("@")){
+                    int occur = 0;
+                    for(char y : finalMessage.toCharArray()){
+                        if(y == '@'){
+                            occur++;
+                        }
+                    }
                     for(Member mem : members){
                         String displayName = mem.getDisplayName();
-                        if(finalMessage.contains(new String("@" + displayName))){
+                        for(int i = 0; i < occur; i++){
                             finalMessage = finalMessage.replace(new String("@" + displayName), mem.getNicknameMention());
                         }
                     }
@@ -70,7 +82,7 @@ public class MinecraftDiscordBridge {
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.isCanceled() || event.player == null) return;
 
@@ -86,7 +98,7 @@ public class MinecraftDiscordBridge {
 
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.isCanceled() || event.player == null) return;
 

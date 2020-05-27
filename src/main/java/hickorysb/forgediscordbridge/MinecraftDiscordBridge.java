@@ -52,7 +52,7 @@ public class MinecraftDiscordBridge {
         //update();
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
         String finalMessage = event.getMessage();
@@ -82,7 +82,7 @@ public class MinecraftDiscordBridge {
         }
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.isCanceled() || event.player == null) return;
 
@@ -98,7 +98,7 @@ public class MinecraftDiscordBridge {
 
     }
 
-    @SubscribeEvent(priority = EventPriority.LOWEST)
+    @SubscribeEvent
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.isCanceled() || event.player == null) return;
 

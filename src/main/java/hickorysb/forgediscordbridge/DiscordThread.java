@@ -35,6 +35,7 @@ public class DiscordThread implements Runnable {
                     final Member member = message.getAuthorAsMember().block();
                     final MessageChannel channel = message.getChannel().block();
                     assert channel != null : "Channel was missing.";
+                    if(message.getAuthor().get().equals(client.getSelf().block())) return;
                     if(Configuration.mainConfig.channelIDs.contains(channel.getId().asString())) {
                         assert message.getAuthor().isPresent() : "Author was missing.";
                         if((Configuration.mainConfig.bridge_bots || !message.getAuthor().get().isBot()) && !message.getContent().startsWith(Configuration.mainConfig.command_prefix)) {

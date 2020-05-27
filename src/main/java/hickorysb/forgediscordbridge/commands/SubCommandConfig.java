@@ -55,6 +55,8 @@ public class SubCommandConfig extends CommandBase {
                     ForgeDiscordBridge.thread = new Thread(run);
                     ForgeDiscordBridge.thread.start();
                     sender.sendMessage(new TextComponentString("Reconnected Bot"));
+                } else {
+                    ForgeDiscordBridge.mdBridge.update();
                 }
 
                 break;

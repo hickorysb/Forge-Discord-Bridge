@@ -68,7 +68,7 @@ public class MinecraftDiscordBridge {
         if(finalMessage.contains("@")){
             for(Member mem : members){
                 String displayName = mem.getDisplayName();
-                finalMessage = finalMessage.replaceAll(new String("@" + displayName), mem.getNicknameMention());
+                finalMessage = finalMessage.replaceAll("@" + displayName, mem.getNicknameMention());
             }
         }
 

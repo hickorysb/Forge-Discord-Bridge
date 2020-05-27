@@ -55,26 +55,26 @@ public class MinecraftDiscordBridge {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
-
         String finalMessage = event.getMessage();
 
         try{
             for(GuildMessageChannel x : channels){
                 members = new ArrayList<Member>(Objects.requireNonNull(x.getMembers().collectList().block()));
-                if(finalMessage.contains("@")){
-                    int occur = 0;
-                    for(char y : finalMessage.toCharArray()){
-                        if(y == '@'){
-                            occur++;
-                        }
-                    }
-                    for(Member mem : members){
-                        String displayName = mem.getDisplayName();
-                        for(int i = 0; i < occur; i++){
-                            finalMessage = finalMessage.replace(new String("@" + displayName), mem.getNicknameMention());
-                        }
-                    }
-                }
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+        }
+
+
+        if(finalMessage.contains("@")){
+            for(Member mem : members){
+                String displayName = mem.getDisplayName();
+                finalMessage = finalMessage.replaceAll(new String("@" + displayName), mem.getNicknameMention());
+            }
+        }
+
+        try{
+            for(GuildMessageChannel x : channels){
                 x.createMessage("**[" + event.getPlayer().getName() + "]**" + finalMessage).block();
             }
         }catch(Exception e){

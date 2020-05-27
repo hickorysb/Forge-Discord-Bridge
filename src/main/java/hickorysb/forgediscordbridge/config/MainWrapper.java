@@ -17,6 +17,12 @@ public class MainWrapper {
     public boolean bridge_bots;
     @Since(1.0)
     public String command_prefix;
+    @Since(1.0)
+    public boolean bridge_commands;
+    @Since(1.0)
+    public boolean bridge_say_me;
+    @Since(1.0)
+    public boolean bridge_achievements;
 
     public void fillFields() {
         if(this.bot_token == null) {

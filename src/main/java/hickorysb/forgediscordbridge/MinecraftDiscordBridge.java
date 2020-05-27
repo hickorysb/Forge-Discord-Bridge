@@ -18,7 +18,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import hickorysb.forgediscordbridge.DiscordThread;
 import reactor.core.publisher.Mono;
-import sun.security.krb5.Config;
 
 import java.util.ArrayList;
 import java.util.List;

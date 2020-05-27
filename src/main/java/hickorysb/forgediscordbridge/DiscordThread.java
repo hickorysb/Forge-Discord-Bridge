@@ -26,7 +26,7 @@ public class DiscordThread implements Runnable {
     public void run() {
         if(!Configuration.mainConfig.bot_token.equals("REPLACE_THIS") && !Configuration.mainConfig.bot_token.equals("")) {
             try {
-                client = DiscordClient.create(Configuration.mainConfig.bot_token).gateway().setEnabledIntents(IntentSet.of(Intent.GUILD_MESSAGES, Intent.GUILD_MEMBERS)).login().block();
+                client = DiscordClient.create(Configuration.mainConfig.bot_token).gateway().setEnabledIntents(IntentSet.of(Intent.GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILDS)).login().block();
                 assert client != null : "Client came out null.";
                 ForgeDiscordBridge.logger.info("Logged in as " + Objects.requireNonNull(client.getSelf().block()).getUsername() + ".");
                 ForgeDiscordBridge.mdBridge.update();

@@ -25,6 +25,8 @@ public class MainWrapper {
     public boolean bridge_achievements;
     @Since(1.0)
     public boolean bridge_join_leave;
+    @Since(1.0)
+    public boolean bridge_server_start_stop;
 
     public void fillFields() {
         if(this.bot_token == null) {

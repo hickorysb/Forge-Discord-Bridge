@@ -23,6 +23,8 @@ public class MainWrapper {
     public boolean bridge_say_me;
     @Since(1.0)
     public boolean bridge_achievements;
+    @Since(1.0)
+    public boolean bridge_join_leave;
 
     public void fillFields() {
         if(this.bot_token == null) {

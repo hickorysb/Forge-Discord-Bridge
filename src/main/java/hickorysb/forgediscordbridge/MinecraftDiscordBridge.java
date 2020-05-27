@@ -56,7 +56,7 @@ public class MinecraftDiscordBridge {
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
         String finalMessage = event.getMessage();
-
+        ForgeDiscordBridge.logger.info("Received message");
         try{
             for(GuildMessageChannel x : channels){
                 members = new ArrayList<Member>(Objects.requireNonNull(x.getMembers().collectList().block()));

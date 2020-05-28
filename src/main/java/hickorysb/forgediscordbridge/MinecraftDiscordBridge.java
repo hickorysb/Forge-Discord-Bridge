@@ -15,6 +15,7 @@ import net.minecraft.advancements.DisplayInfo;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.event.ServerChatEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
@@ -38,9 +39,6 @@ public class MinecraftDiscordBridge {
     public ArrayList<GuildMessageChannel> channels;
     private ArrayList<String> channelids;
     private ArrayList<Member> members;
-    //private String buffer;
-    //public static MinecraftDiscordBridge instance;
-
 
     public void update(){
         channelids = Configuration.mainConfig.channelIDs;
@@ -50,22 +48,24 @@ public class MinecraftDiscordBridge {
                 channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error getting valid channels from bot.");
+            ForgeDiscordBridge.logger.error("[update]Error getting valid channels from bot.");
         }
     }
 
     public MinecraftDiscordBridge(){
         channelids = Configuration.mainConfig.channelIDs;
-        //update();
     }
 
     public void serverStartupMessage(){
+        if(!Configuration.mainConfig.bridge_server_start_stop){
+            return;
+        }
         try{
             for(GuildMessageChannel x : channels){
                 x.createMessage("Server started!").block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Server startup error");
+            ForgeDiscordBridge.logger.error("[ServerStartup]Server startup error");
         }
     }
 
@@ -73,6 +73,10 @@ public class MinecraftDiscordBridge {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
+        if(!Configuration.mainConfig.bridge_say_me){
+            return;
+        }
+
         String finalMessage = event.getMessage();
         ForgeDiscordBridge.logger.info("Received message");
         try{
@@ -80,7 +84,7 @@ public class MinecraftDiscordBridge {
                 members = new ArrayList<Member>(Objects.requireNonNull(x.getMembers().collectList().block()));
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            ForgeDiscordBridge.logger.error("[ServerChatEvent0]Error when sending bot message.");
         }
 
 
@@ -96,14 +100,16 @@ public class MinecraftDiscordBridge {
                 x.createMessage("**[" + event.getPlayer().getName() + "]**" + finalMessage).block();
             }
         }catch(Exception e){
-            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
-            ForgeDiscordBridge.logger.error("Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[ServerChatEvent1]Error when sending bot message.");
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.isCanceled() || event.player == null) return;
+        if(!Configuration.mainConfig.bridge_join_leave){
+            return;
+        }
 
         try{
 
@@ -111,8 +117,7 @@ public class MinecraftDiscordBridge {
                 x.createMessage("**" + event.player.getName() + "** just joined the server!").block();
             }
         }catch(Exception e){
-            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
-            ForgeDiscordBridge.logger.error("Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[PlayerJoin]Error when sending bot message.");
         }
 
 
@@ -121,14 +126,16 @@ public class MinecraftDiscordBridge {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.isCanceled() || event.player == null) return;
+        if(!Configuration.mainConfig.bridge_join_leave){
+            return;
+        }
 
         try{
             for(GuildMessageChannel x : channels){
                 x.createMessage("**" + event.player.getName() + "** just left the server!").block();
             }
         }catch(Exception e){
-            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
-            ForgeDiscordBridge.logger.error("Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[PlayerLeave]Error when sending bot message.");
         }
 
 
@@ -136,6 +143,9 @@ public class MinecraftDiscordBridge {
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerAdvancement(AdvancementEvent event){
+        if(!Configuration.mainConfig.bridge_achievements){
+            return;
+        }
         String message = "";
         EntityPlayer player = event.getEntityPlayer();
         if(player instanceof EntityPlayerMP){
@@ -155,8 +165,43 @@ public class MinecraftDiscordBridge {
                 x.createMessage(message).block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[Advancement]Error when sending bot message.");
         }
+
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onServerCommandEvent(CommandEvent event){
+        if(event.isCancelable()){
+            if(event.isCanceled()){
+                return;
+            }
+        }
+
+        if(!Configuration.mainConfig.bridge_commands){
+            return;
+        }
+
+        String[] args = event.getParameters();
+        String command = event.getCommand().getName();
+        String player = event.getSender().getName();
+        String message = "*" + player + "* has executed the following command:\n**" + command + "** ";
+        for(String x : args){
+            if(x == args[args.length - 1]){
+                message += "__" + x + "__";
+            }else {
+                message += "__" + x + "__ ";
+            }
+        }
+
+        try{
+            for(GuildMessageChannel x : channels){
+                x.createMessage(message).block();
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("[Command]Error when sending bot message.");
+        }
+
 
     }
 

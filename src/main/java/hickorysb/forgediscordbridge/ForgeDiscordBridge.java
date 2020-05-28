@@ -48,12 +48,15 @@ public class ForgeDiscordBridge
 
     @EventHandler
     public void onServerShutdown(FMLServerStoppingEvent event){
+        if(!Configuration.mainConfig.bridge_server_start_stop){
+            return;
+        }
         try{
             for(GuildMessageChannel x : mdBridge.channels){
                 x.createMessage("Server stopped!").block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Server shutdown error"); // lol
+            ForgeDiscordBridge.logger.error("[ServerShutdown]Server shutdown error"); // lol
         }
     }
 

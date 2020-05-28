@@ -3,6 +3,7 @@ package hickorysb.forgediscordbridge;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Attachment;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Message;
 import discord4j.core.object.entity.Role;
@@ -13,7 +14,9 @@ import hickorysb.forgediscordbridge.config.CommandConfig;
 import hickorysb.forgediscordbridge.config.Configuration;
 import hickorysb.forgediscordbridge.config.GroupConfig;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import reactor.core.publisher.Flux;
 
@@ -41,7 +44,14 @@ public class DiscordThread implements Runnable {
                         if((Configuration.mainConfig.bridge_bots || !message.getAuthor().get().isBot()) && !message.getContent().startsWith(Configuration.mainConfig.command_prefix)) {
                             assert member != null : "Member was missing.";
                             String nickname = member.getNickname().orElse(message.getAuthor().get().getUsername());
-                            FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + message.getContent()));
+                            if(message.getContent().length() > 0) {
+                                FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + message.getContent()));
+                            }
+                            if(!message.getAttachments().isEmpty()) {
+                                for(Attachment a : message.getAttachments()) {
+                                    FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] File: " + a.getFilename()).setStyle(new Style().setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, a.getProxyUrl()))));
+                                }
+                            }
                         } else if((Configuration.mainConfig.bridge_bots || !message.getAuthor().get().isBot()) && message.getContent().startsWith(Configuration.mainConfig.command_prefix)) {
                             CommandConfig command = null;
                             for(CommandConfig c : Configuration.commandsConfig.commands) {

@@ -4,17 +4,25 @@ import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Guild;
 import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.channel.Channel;
-import discord4j.core.object.entity.channel.GuildMessageChannel;
-import discord4j.core.object.entity.channel.MessageChannel;
-import discord4j.core.object.entity.channel.TextChannel;
+import discord4j.core.object.entity.channel.*;
 import discord4j.discordjson.json.ChannelData;
 import discord4j.rest.util.Snowflake;
 import hickorysb.forgediscordbridge.config.*;
 import hickorysb.forgediscordbridge.DiscordThread;
+import ibxm.Player;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.DisplayInfo;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.event.ServerChatEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.event.FMLServerStartedEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppedEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.event.entity.player.AdvancementEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import hickorysb.forgediscordbridge.DiscordThread;
 import reactor.core.publisher.Mono;
@@ -27,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MinecraftDiscordBridge {
     private MessageChannel currentChannel;
-    private ArrayList<GuildMessageChannel> channels;
+    public ArrayList<GuildMessageChannel> channels;
     private ArrayList<String> channelids;
     private ArrayList<Member> members;
     //private String buffer;
@@ -42,7 +50,7 @@ public class MinecraftDiscordBridge {
                 channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Bot Error");
+            ForgeDiscordBridge.logger.error("Error getting valid channels from bot.");
         }
     }
 
@@ -51,7 +59,18 @@ public class MinecraftDiscordBridge {
         //update();
     }
 
-    @SubscribeEvent
+    public void serverStartupMessage(){
+        try{
+            for(GuildMessageChannel x : channels){
+                x.createMessage("Server started!").block();
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Server startup error");
+        }
+    }
+
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onIngameChat(ServerChatEvent event){
         if(event.isCanceled() || event.getPlayer() == null) return;
         String finalMessage = event.getMessage();
@@ -77,11 +96,12 @@ public class MinecraftDiscordBridge {
                 x.createMessage("**[" + event.getPlayer().getName() + "]**" + finalMessage).block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            ForgeDiscordBridge.logger.error("Error when sending bot message.");
         }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event){
         if(event.isCanceled() || event.player == null) return;
 
@@ -91,13 +111,14 @@ public class MinecraftDiscordBridge {
                 x.createMessage("**" + event.player.getName() + "** just joined the server!").block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            ForgeDiscordBridge.logger.error("Error when sending bot message.");
         }
 
 
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST)
     public void onPlayerLeave(PlayerEvent.PlayerLoggedOutEvent event){
         if(event.isCanceled() || event.player == null) return;
 
@@ -106,10 +127,39 @@ public class MinecraftDiscordBridge {
                 x.createMessage("**" + event.player.getName() + "** just left the server!").block();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            //ForgeDiscordBridge.logger.error("Error with bot(any): \n- Invalid token (most likely)\n- Discord is down\n- Server has no internet connection\n- Your bot is banned");
+            ForgeDiscordBridge.logger.error("Error when sending bot message.");
         }
 
 
     }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public void onPlayerAdvancement(AdvancementEvent event){
+        String message = "";
+        EntityPlayer player = event.getEntityPlayer();
+        if(player instanceof EntityPlayerMP){
+            Advancement advance = event.getAdvancement();
+            DisplayInfo info = advance.getDisplay();
+            if(info == null || !info.shouldAnnounceToChat()){
+                return;
+            }else{
+                message = new String("**" + player.getName() + "** just gained the achievement **" + info.getTitle().getUnformattedText().toString() + "**\n*" + info.getDescription().getUnformattedText().toString() + "*");
+            }
+        }
+        if(message == ""){
+            return;
+        }
+        try{
+            for(GuildMessageChannel x : channels){
+                x.createMessage(message).block();
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Error when sending bot message.");
+        }
+
+    }
+
+
 
 }

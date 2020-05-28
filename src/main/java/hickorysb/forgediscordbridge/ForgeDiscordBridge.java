@@ -1,5 +1,6 @@
 package hickorysb.forgediscordbridge;
 
+import discord4j.core.object.entity.channel.GuildMessageChannel;
 import hickorysb.forgediscordbridge.commands.DiscordBridge;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
@@ -12,6 +13,7 @@ import hickorysb.forgediscordbridge.config.Configuration;
 import hickorysb.forgediscordbridge.MinecraftDiscordBridge;
 
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
@@ -42,6 +44,17 @@ public class ForgeDiscordBridge
         Configuration.loadMainConfig();
         Configuration.loadCommandsConfig();
         Configuration.loadGroupsConfig();
+    }
+
+    @EventHandler
+    public void onServerShutdown(FMLServerStoppingEvent event){
+        try{
+            for(GuildMessageChannel x : mdBridge.channels){
+                x.createMessage("Server stopped!").block();
+            }
+        }catch(Exception e){
+            ForgeDiscordBridge.logger.error("Server shutdown error"); // lol
+        }
     }
 
     @EventHandler

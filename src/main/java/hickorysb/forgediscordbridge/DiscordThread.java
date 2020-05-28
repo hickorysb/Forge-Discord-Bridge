@@ -30,6 +30,7 @@ public class DiscordThread implements Runnable {
                 assert client != null : "Client came out null.";
                 ForgeDiscordBridge.logger.info("Logged in as " + Objects.requireNonNull(client.getSelf().block()).getUsername() + ".");
                 ForgeDiscordBridge.mdBridge.update();
+                ForgeDiscordBridge.mdBridge.serverStartupMessage();
                 client.on(MessageCreateEvent.class).subscribe(event -> {
                     final Message message = event.getMessage();
                     final Member member = message.getAuthorAsMember().block();

@@ -5,6 +5,7 @@ import hickorysb.forgediscordbridge.commands.DiscordBridge;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -17,7 +18,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
-@Mod(modid = ForgeDiscordBridge.MODID, name = ForgeDiscordBridge.NAME, version = ForgeDiscordBridge.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*")
+@Mod(modid = ForgeDiscordBridge.MODID, name = ForgeDiscordBridge.NAME, version = ForgeDiscordBridge.VERSION, serverSideOnly = true, acceptableRemoteVersions = "*", dependencies = "after:ftblib;after:ftbutilities;")
 public class ForgeDiscordBridge
 {
     public static final String MODID = "forgediscordbridge";
@@ -26,6 +27,7 @@ public class ForgeDiscordBridge
     public static Logger logger;
     public static Thread thread;
     public static MinecraftDiscordBridge mdBridge;
+    public static boolean isFTBAvailable = false;
 
     private static Boolean hasInitializedDiscord = false;
 
@@ -44,6 +46,13 @@ public class ForgeDiscordBridge
         Configuration.loadMainConfig();
         Configuration.loadCommandsConfig();
         Configuration.loadGroupsConfig();
+    }
+
+    @EventHandler
+    public void postInit(FMLInitializationEvent event){
+        if(Loader.isModLoaded("ftbutilities")) {
+            isFTBAvailable = true;
+        }
     }
 
     @EventHandler

@@ -42,12 +42,21 @@ minecraft {
     }
 }
 
+repositories {
+    maven { url "https://maven.latmod.com/" }
+    maven {
+        name = "Progwml6 maven"
+        url = "https://dvs1.progwml6.com/files/maven/"
+    }
+}
+
 dependencies {
     minecraft 'net.minecraftforge:forge:1.12.2-14.23.5.2854'
     implementation("com.discord4j:discord4j-core:3.1.0.RC1")
     implementation("com.vdurmont:emoji-java:5.1.1")
     implementation("org.json:json:20200518")
-
+    compileOnly "com.feed_the_beast.mods:FTBLib:5.+"
+    compileOnly "com.feed_the_beast.mods:FTBUtilities:5.+"
 }
 
 shadowJar {

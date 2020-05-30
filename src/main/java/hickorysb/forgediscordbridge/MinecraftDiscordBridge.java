@@ -43,7 +43,7 @@ public class MinecraftDiscordBridge {
 
     public void update(){
         channelids = Configuration.mainConfig.channelIDs;
-        channels = new ArrayList<GuildMessageChannel>();
+        channels = new ArrayList<>();
         try{
             for(String x : channelids){
                 channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
@@ -82,7 +82,7 @@ public class MinecraftDiscordBridge {
         ForgeDiscordBridge.logger.info("Received message");
         try{
             for(GuildMessageChannel x : channels){
-                members = new ArrayList<Member>(Objects.requireNonNull(x.getMembers().collectList().block()));
+                members = new ArrayList<>(Objects.requireNonNull(x.getMembers().collectList().block()));
             }
         }catch(Exception e){
             ForgeDiscordBridge.logger.error("[ServerChatEvent0]Error when sending bot message.");
@@ -98,7 +98,11 @@ public class MinecraftDiscordBridge {
 
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(Utilities.replace(Emojis.minecraftToDiscordEmotes, EmojiParser.parseToAliases(finalMessage)))).block();
+                if(Configuration.mainConfig.disable_emoji_translation) {
+                    x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(finalMessage)).block();
+                } else {
+                    x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(Utilities.replace(Emojis.minecraftToDiscordEmotes, EmojiParser.parseToAliases(finalMessage)))).block();
+                }
             }
         }catch(Exception e){
             ForgeDiscordBridge.logger.error("[ServerChatEvent1]Error when sending bot message.");
@@ -155,10 +159,10 @@ public class MinecraftDiscordBridge {
             if(info == null || !info.shouldAnnounceToChat()){
                 return;
             }else{
-                message = new String("**" + player.getName() + "** just gained the achievement **" + info.getTitle().getUnformattedText().toString() + "**\n*" + info.getDescription().getUnformattedText().toString() + "*");
+                message = "**" + player.getName() + "** just gained the achievement **" + info.getTitle().getUnformattedText() + "**\n*" + info.getDescription().getUnformattedText() + "*";
             }
         }
-        if(message == ""){
+        if(message.equals("")){
             return;
         }
         try{
@@ -186,18 +190,27 @@ public class MinecraftDiscordBridge {
         String[] args = event.getParameters();
         String command = event.getCommand().getName();
         String player = event.getSender().getName();
-        String message = "*" + player + "* has executed the following command:\n**" + command + "** ";
+        StringBuilder message = new StringBuilder();
+        message.append("*");
+        message.append(player);
+        message.append("* has executed the following command:\n**");
+        message.append(command);
+        message.append("** ");
         for(String x : args){
-            if(x == args[args.length - 1]){
-                message += "__" + x + "__";
+            if(x.equals(args[args.length - 1])){
+                message.append("__");
+                message.append(x);
+                message.append("__");
             }else {
-                message += "__" + x + "__ ";
+                message.append("__");
+                message.append(x);
+                message.append("__ ");
             }
         }
 
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage(message).block();
+                x.createMessage(message.toString()).block();
             }
         }catch(Exception e){
             ForgeDiscordBridge.logger.error("[Command]Error when sending bot message.");

@@ -46,7 +46,11 @@ public class DiscordThread implements Runnable {
                             assert member != null : "Member was missing.";
                             String nickname = member.getNickname().orElse(message.getAuthor().get().getUsername());
                             if(message.getContent().length() > 0) {
-                                FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + Patterns.discordToMinecraft(EmojiParser.parseToUnicode(Utilities.replace(Emojis.discordToMinecraftEmotes, message.getContent())))));
+                                if(Configuration.mainConfig.disable_emoji_translation) {
+                                    FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + Patterns.discordToMinecraft(message.getContent())));
+                                } else {
+                                    FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + Patterns.discordToMinecraft(EmojiParser.parseToUnicode(Utilities.replace(Emojis.discordToMinecraftEmotes, message.getContent())))));
+                                }
                             }
                             if(!message.getAttachments().isEmpty()) {
                                 for(Attachment a : message.getAttachments()) {

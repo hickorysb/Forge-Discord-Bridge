@@ -29,6 +29,8 @@ public class MainWrapper {
     public boolean bridge_server_start_stop;
     @Since(1.0)
     public boolean enable_ftbutilities_integration;
+    @Since(1.0)
+    public boolean disable_emoji_translation;
 
     public void fillFields() {
         if(this.bot_token == null) {

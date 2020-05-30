@@ -70,9 +70,9 @@ shadowJar {
     //relocate 'it', 'hickorysb.forgediscordbridge.repack.it'
     //relocate 'discord4j', 'hickorysb.forgediscordbridge.repack.discord4j'
     //relocate 'reactor', 'hickorysb.forgediscordbridge.repack.reactor'
-    /*minimize {
+    minimize {
         exclude 'module-info'
-    }*/
+    }
 
     dependencies {
         include(dependency("org.json:json:20200518"))

@@ -13,7 +13,7 @@ import discord4j.gateway.intent.IntentSet;
 import hickorysb.forgediscordbridge.config.CommandConfig;
 import hickorysb.forgediscordbridge.config.Configuration;
 import hickorysb.forgediscordbridge.config.GroupConfig;
-import net.minecraft.client.Minecraft;
+import com.vdurmont.emoji.EmojiParser;
 import net.minecraft.util.text.Style;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
@@ -46,7 +46,7 @@ public class DiscordThread implements Runnable {
                             assert member != null : "Member was missing.";
                             String nickname = member.getNickname().orElse(message.getAuthor().get().getUsername());
                             if(message.getContent().length() > 0) {
-                                FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + message.getContent()));
+                                FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().sendMessage(new TextComponentString("[" + nickname + "] " + Patterns.discordToMinecraft(EmojiParser.parseToUnicode(Utilities.replace(Emojis.discordToMinecraftEmotes, message.getContent())))));
                             }
                             if(!message.getAttachments().isEmpty()) {
                                 for(Attachment a : message.getAttachments()) {

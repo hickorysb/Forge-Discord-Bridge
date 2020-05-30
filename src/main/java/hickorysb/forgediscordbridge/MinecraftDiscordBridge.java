@@ -1,5 +1,6 @@
 package hickorysb.forgediscordbridge;
 
+import com.vdurmont.emoji.EmojiParser;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.object.entity.Member;
 import discord4j.core.object.entity.Guild;
@@ -97,7 +98,7 @@ public class MinecraftDiscordBridge {
 
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage("**[" + event.getPlayer().getName() + "]**" + finalMessage).block();
+                x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(Utilities.replace(Emojis.minecraftToDiscordEmotes, EmojiParser.parseToAliases(finalMessage)))).block();
             }
         }catch(Exception e){
             ForgeDiscordBridge.logger.error("[ServerChatEvent1]Error when sending bot message.");

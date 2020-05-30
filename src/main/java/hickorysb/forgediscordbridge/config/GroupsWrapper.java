@@ -18,5 +18,9 @@ public class GroupsWrapper {
             list.name = "op";
             groups.add(list);
         }
+
+        for(GroupConfig group : groups) {
+            group.fillFields();
+        }
     }
 }

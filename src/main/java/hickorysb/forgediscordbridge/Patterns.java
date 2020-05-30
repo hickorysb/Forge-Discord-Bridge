@@ -28,13 +28,6 @@ public class Patterns {
         minecraftToDiscordFormattingPatterns.put(pattern, replacement);
     }
 
-    /**
-     * Add pattern that converts other Minecraft formattings to the standard Minecraft formatting
-     * For example: &f to §f
-     *
-     * @param pattern     Pattern
-     * @param replacement Replacement handler
-     */
     static void addMinecraftFormattingUnifyPattern(Pattern pattern, ReplacementCallback replacement) {
         minecraftFormattingUnifyPatterns.put(pattern, replacement);
     }

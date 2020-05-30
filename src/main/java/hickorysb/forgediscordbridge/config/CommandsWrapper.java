@@ -19,5 +19,9 @@ public class CommandsWrapper {
             list.aliases.add("listplayers");
             commands.add(list);
         }
+
+        for(CommandConfig command : commands) {
+            command.fillFields();
+        }
     }
 }

@@ -2,7 +2,6 @@ package hickorysb.forgediscordbridge;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.mojang.authlib.GameProfile;
 import discord4j.core.object.entity.User;

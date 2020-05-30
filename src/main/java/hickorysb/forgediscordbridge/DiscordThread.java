@@ -1,5 +1,6 @@
 package hickorysb.forgediscordbridge;
 
+import discord4j.common.retry.ReconnectOptions;
 import discord4j.core.DiscordClient;
 import discord4j.core.GatewayDiscordClient;
 import discord4j.core.event.domain.message.MessageCreateEvent;
@@ -19,6 +20,8 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import reactor.core.publisher.Flux;
+import reactor.retry.Backoff;
+import reactor.retry.Jitter;
 
 import java.util.Objects;
 
@@ -29,7 +32,7 @@ public class DiscordThread implements Runnable {
     public void run() {
         if(!Configuration.mainConfig.bot_token.equals("REPLACE_THIS") && !Configuration.mainConfig.bot_token.equals("")) {
             try {
-                client = DiscordClient.create(Configuration.mainConfig.bot_token).gateway().setEnabledIntents(IntentSet.of(Intent.GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILDS)).login().block();
+                client = DiscordClient.create(Configuration.mainConfig.bot_token).gateway().setEnabledIntents(IntentSet.of(Intent.GUILD_MESSAGES, Intent.GUILD_MEMBERS, Intent.GUILDS)).setReconnectOptions(ReconnectOptions.builder().setMaxRetries(5).setBackoff(Backoff.ZERO_BACKOFF).setJitter(Jitter.NO_JITTER).build()).login().block();
                 assert client != null : "Client came out null.";
                 ForgeDiscordBridge.logger.info("Logged in as " + Objects.requireNonNull(client.getSelf().block()).getUsername() + ".");
                 ForgeDiscordBridge.mdBridge.update();
@@ -113,7 +116,9 @@ public class DiscordThread implements Runnable {
                         }
                     }
                 });
-                client.onDisconnect().block();
+                client.onDisconnect().subscribe(event -> {
+                    client = null;
+                });
             } catch(Exception e) {
                 ForgeDiscordBridge.logger.error("Error logging into your bot. This could be caused by:");
                 ForgeDiscordBridge.logger.error("- An invalid token (Most likely)");

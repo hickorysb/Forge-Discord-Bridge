@@ -47,6 +47,7 @@ public class Configuration {
         Gson gson = createGson();
 
         if(!commands.exists()) {
+            commands.getParentFile().mkdirs();
             commandsConfig = new CommandsWrapper();
             commandsConfig.fillFields();
             saveCommandsConfig();
@@ -75,7 +76,7 @@ public class Configuration {
                     try {
                         reader.close();
                     } catch (IOException e) {
-
+                        //ignored
                     }
                 }
             }
@@ -102,6 +103,7 @@ public class Configuration {
         Gson gson = createGson();
 
         if(!main.exists()) {
+            main.getParentFile().mkdirs();
             mainConfig = new MainWrapper();
             mainConfig.fillFields();
             saveMainConfig();
@@ -157,6 +159,7 @@ public class Configuration {
         Gson gson = createGson();
 
         if(!groups.exists()) {
+            groups.getParentFile().mkdirs();
             groupsConfig = new GroupsWrapper();
             groupsConfig.fillFields();
             saveGroupsConfig();

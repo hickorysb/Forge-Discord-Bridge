@@ -49,7 +49,7 @@ public class MinecraftDiscordBridge {
                 channels.add(DiscordThread.client.getChannelById(Snowflake.of(x)).cast(GuildMessageChannel.class).block());
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[update]Error getting valid channels from bot.");
+            ForgeDiscordBridge.logger.error("[update] Error getting valid channels from bot.");
         }
     }
 
@@ -63,10 +63,10 @@ public class MinecraftDiscordBridge {
         }
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage("Server started!").block();
+                x.createMessage("Server started!").subscribe();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[ServerStartup]Server startup error");
+            ForgeDiscordBridge.logger.error("[ServerStartup] Server startup error");
         }
     }
 
@@ -85,7 +85,7 @@ public class MinecraftDiscordBridge {
                 members = new ArrayList<>(Objects.requireNonNull(x.getMembers().collectList().block()));
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[ServerChatEvent0]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[ServerChatEvent0] Error when sending bot message.");
         }
 
 
@@ -99,13 +99,13 @@ public class MinecraftDiscordBridge {
         try{
             for(GuildMessageChannel x : channels){
                 if(Configuration.mainConfig.disable_emoji_translation) {
-                    x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(finalMessage)).block();
+                    x.createMessage("**[" + event.getPlayer().getName() + "]** " + Patterns.minecraftToDiscord(finalMessage)).subscribe();
                 } else {
-                    x.createMessage("**[" + event.getPlayer().getName() + "]**" + Patterns.minecraftToDiscord(Utilities.replace(Emojis.minecraftToDiscordEmotes, EmojiParser.parseToAliases(finalMessage)))).block();
+                    x.createMessage("**[" + event.getPlayer().getName() + "]** " + Patterns.minecraftToDiscord(Utilities.replace(Emojis.minecraftToDiscordEmotes, EmojiParser.parseToAliases(finalMessage)))).subscribe();
                 }
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[ServerChatEvent1]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[ServerChatEvent1] Error when sending bot message.");
         }
     }
 
@@ -116,13 +116,20 @@ public class MinecraftDiscordBridge {
             return;
         }
 
+        if(DiscordThread.client == null) {
+            DiscordThread.end();
+            Runnable run = new DiscordThread();
+            ForgeDiscordBridge.thread = new Thread(run);
+            ForgeDiscordBridge.thread.start();
+        }
+
         try{
 
             for(GuildMessageChannel x : channels){
-                x.createMessage("**" + event.player.getName() + "** just joined the server!").block();
+                x.createMessage("**" + event.player.getName() + "** just joined the server!").subscribe();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[PlayerJoin]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[PlayerJoin] Error when sending bot message.");
         }
 
 
@@ -137,10 +144,10 @@ public class MinecraftDiscordBridge {
 
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage("**" + event.player.getName() + "** just left the server!").block();
+                x.createMessage("**" + event.player.getName() + "** just left the server!").subscribe();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[PlayerLeave]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[PlayerLeave] Error when sending bot message.");
         }
 
 
@@ -167,10 +174,10 @@ public class MinecraftDiscordBridge {
         }
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage(message).block();
+                x.createMessage(message).subscribe();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[Advancement]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[Advancement] Error when sending bot message.");
         }
 
     }
@@ -210,10 +217,10 @@ public class MinecraftDiscordBridge {
 
         try{
             for(GuildMessageChannel x : channels){
-                x.createMessage(message.toString()).block();
+                x.createMessage(message.toString()).subscribe();
             }
         }catch(Exception e){
-            ForgeDiscordBridge.logger.error("[Command]Error when sending bot message.");
+            ForgeDiscordBridge.logger.error("[Command] Error when sending bot message.");
         }
 
 

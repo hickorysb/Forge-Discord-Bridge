@@ -31,6 +31,8 @@ public class MainWrapper {
     public boolean enable_ftbutilities_integration;
     @Since(1.0)
     public boolean disable_emoji_translation;
+    @Since(1.0)
+    public PresenceConfig presenceConfig;
 
     public void fillFields() {
         if(this.bot_token == null) {
